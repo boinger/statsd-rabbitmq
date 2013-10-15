@@ -13,10 +13,11 @@ require 'resolv'
 
 ###############################################################
 # Typical StatsD class, pasted to avoid an external dependency:
+# Stolen from https://github.com/bvandenbos/statsd-client
 
 class Statsd
 
-  Version = '0.0.1'
+  Version = '0.0.8'
 
   class << self
 
