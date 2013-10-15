@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+#
+# Author: Jeff Vier <jeff@jeffvier.com>
 
 # all these should should be available after puppet install:
 require 'rubygems'
@@ -8,6 +10,9 @@ require 'fileutils'
 require 'json'
 require 'socket'
 require 'resolv'
+
+###############################################################
+# Typical StatsD class, pasted to avoid an external dependency:
 
 class Statsd
 
