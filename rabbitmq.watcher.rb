@@ -106,6 +106,10 @@ STDOUT.sync = true # don't buffer STDOUT
 Statsd.host = '127.0.0.1'
 Statsd.port = 8125
 
+unless system 'which rabbitmqadmin'
+  raise "unable to locate the rabbitmqadmin command"
+end
+
 loop do
   overview = JSON.parse(`rabbitmqadmin show overview -f raw_json`)
   Statsd.gauge('rabbitmq.channels', overview[0]['object_totals']['channels'])
@@ -113,6 +117,16 @@ loop do
   Statsd.gauge('rabbitmq.consumers', overview[0]['object_totals']['consumers'])
   Statsd.gauge('rabbitmq.exchanges', overview[0]['object_totals']['exchanges'])
   Statsd.gauge('rabbitmq.queues', overview[0]['object_totals']['queues'])
+
+  queues = JSON.parse(`rabbitmqadmin list queues -f raw_json`)
+  queues.each do |q|
+    name = q['name'] || 'no_name'
+    name.gsub!(/\./, '_')
+
+    Statsd.gauge("rabbitmq.queue.#{name}.messages", q['messages'])
+    Statsd.gauge("rabbitmq.queue.#{name}.consumers", q['consumers'])
+  end
+
   sleep 10
 end
 
