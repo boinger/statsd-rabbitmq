@@ -118,24 +118,6 @@ loop do
   Statsd.gauge('rabbitmq.exchanges', overview[0]['object_totals']['exchanges'])
   Statsd.gauge('rabbitmq.queues', overview[0]['object_totals']['queues'])
 
-  queues = JSON.parse(`rabbitmqadmin list queues -f raw_json`)
-  queues.each do |q|
-    name = q['name']
-    next unless name
-    name.gsub!(/\./, '_')
-    next if name.match(/^amq_gen/)
-
-    # rabbitmqadmin may set messages and consumers to nil.
-    # I do not know how nil vs. 0 should be interpreted
-    # to preserve the nil value, a nil metric will NOT be sent.
-
-    messages = q['messages']
-    Statsd.gauge("rabbitmq.queue.#{name}.messages", messages) if messages
-
-    consumers = q['consumers']
-    Statsd.gauge("rabbitmq.queue.#{name}.consumers", consumers) if consumers
-  end
-
   sleep 10
 end
 
