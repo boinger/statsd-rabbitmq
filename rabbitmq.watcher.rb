@@ -22,11 +22,11 @@ options = {
 OptionParser.new do |opts|
   opts.banner = "Usage: #{$0} [options]"
 
-  opts.on('-P', '--prefix [STATSD_PREFIX]', "metric prefix (default: #{options[:prefix]})")    { |prefix|   options[:prefix] = "#{prefix}" }
-  opts.on('-i', '--interval [SEC]',"reporting interval (default: #{options[:interval]})")      { |interval| options[:interval] = interval }
-  opts.on('-h', '--host [HOST]',   "statsd host (default: #{options[:host]})")                 { |host|     options[:host] = host }
-  opts.on('-p', '--port [PORT]',   "statsd port (default: #{options[:port]})")                 { |port|     options[:port] = port }
-  opts.on('-q', '--[no-]queues',        "report queue metrics (default: #{options[:queues]})") { |queues|   options[:queues] = queues }
+  opts.on('-P', '--prefix [STATSD_PREFIX]', "metric prefix (default: #{options[:prefix]})") { |prefix|   options[:prefix] = "#{prefix}" }
+  opts.on('-i', '--interval [SEC]',"reporting interval (default: #{options[:interval]})")   { |interval| options[:interval] = interval }
+  opts.on('-h', '--host [HOST]',   "statsd host (default: #{options[:host]})")              { |host|     options[:host] = host }
+  opts.on('-p', '--port [PORT]',   "statsd port (default: #{options[:port]})")              { |port|     options[:port] = port }
+  opts.on('-q', '--[no-]queues',   "report queue metrics (default: #{options[:queues]})")   { |queues|   options[:queues] = queues }
 end.parse!
 
 ###############################################################
