@@ -17,16 +17,24 @@ options = {
   :interval => 10,
   :host => '127.0.0.1',
   :port => 8125,
-  :queues => false
+  :queues => false,
+  :rmquser => 'guest',
+  :rmqpass => 'guest',
+  :rmqhost => '127.0.0.1',
+  :rmqport => 15672
 }
 OptionParser.new do |opts|
   opts.banner = "Usage: #{$0} [options]"
 
-  opts.on('-P', '--prefix [STATSD_PREFIX]', "metric prefix (default: #{options[:prefix]})") { |prefix|   options[:prefix] = "#{prefix}" }
-  opts.on('-i', '--interval [SEC]',"reporting interval (default: #{options[:interval]})")   { |interval| options[:interval] = interval }
-  opts.on('-h', '--host [HOST]',   "statsd host (default: #{options[:host]})")              { |host|     options[:host] = host }
-  opts.on('-p', '--port [PORT]',   "statsd port (default: #{options[:port]})")              { |port|     options[:port] = port }
-  opts.on('-q', '--[no-]queues',   "report queue metrics (default: #{options[:queues]})")   { |queues|   options[:queues] = queues }
+  opts.on('-P', '--prefix [STATSD_PREFIX]', "metric prefix (default: #{options[:prefix]})")     { |prefix|   options[:prefix] = "#{prefix}" }
+  opts.on('-i', '--interval [SEC]',"reporting interval (default: #{options[:interval]})")       { |interval| options[:interval] = interval }
+  opts.on('-h', '--host [HOST]',   "statsd host (default: #{options[:host]})")                  { |host|     options[:host] = host }
+  opts.on('-p', '--port [PORT]',   "statsd port (default: #{options[:port]})")                  { |port|     options[:port] = port }
+  opts.on('-u', '--rmquser [RABBITMQ_USER]',   "rabbitmq user (default: #{options[:rmquser]})") { |rmquser|  options[:rmquser] = rmquser }
+  opts.on('-s', '--rmqpass [RABBITMQ_PASS]',   "rabbitmq pass (default: #{options[:rmqpass]})") { |rmqpass|  options[:rmqpass] = rmqpass }
+  opts.on('-r', '--rmqhost [RABBITMQ_HOST]',   "rabbitmq host (default: #{options[:rmqhost]})") { |rmqhost|  options[:rmqhost] = rmqhost }
+  opts.on('-b', '--rmqport [RABBITMQ_PORT]',   "rabbitmq port (default: #{options[:rmqport]})") { |rmqport|  options[:rmqport] = rmqport }
+  opts.on('-q', '--[no-]queues',   "report queue metrics (default: #{options[:queues]})")       { |queues|   options[:queues] = queues }
 end.parse!
 
 ###############################################################
@@ -129,7 +137,7 @@ unless system 'which rabbitmqadmin'
 end
 
 loop do
-  overview = JSON.parse(`rabbitmqadmin show overview -f raw_json`)
+  overview = JSON.parse(`rabbitmqadmin --host #{options[:rmqhost]} --port #{options[:rmqport]} --user #{options[:rmquser]} --password #{options[:rmqpass]} show overview -f raw_json`)
   prefix = "#{options[:prefix]}.overview.object_totals"
   Statsd.gauge("#{prefix}.channels", overview[0]['object_totals']['channels'])
   Statsd.gauge("#{prefix}.connections", overview[0]['object_totals']['connections'])
@@ -138,7 +146,7 @@ loop do
   Statsd.gauge("#{prefix}.queues", overview[0]['object_totals']['queues'])
 
   if options[:queues]
-    queues = JSON.parse(`rabbitmqadmin list queues -f raw_json`)
+    queues = JSON.parse(`rabbitmqadmin --host #{options[:rmqhost]} --port #{options[:rmqport]} --user #{options[:rmquser]} --password #{options[:rmqpass]} list queues -f raw_json`)
     queues.each do |queue|
       if queue.key?('name')
         prefix = "#{options[:prefix]}.queues.#{queue['name']}"
